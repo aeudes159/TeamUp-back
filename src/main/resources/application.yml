@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:54322/postgres}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate  # ou validate si DB déjà créée
+      ddl-auto: validate  # ou validate si DB dï¿½jï¿½ crï¿½ï¿½e
 
 server:
   port: ${PORT:8080}  # Render injecte le PORT automatiquement

@@ -1,4 +1,4 @@
-package main.java.io.takima.teamupback.groupmember
+package main.java.io.takima.teamupback.groupMember
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext

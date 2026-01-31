@@ -1,4 +1,4 @@
-package main.java.io.takima.teamupback.activityfeed
+package main.java.io.takima.teamupback.activityFeed
 
 // Request DTOs
 data class ActivityFeedCreateRequest(

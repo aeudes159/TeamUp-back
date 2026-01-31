@@ -1,4 +1,4 @@
-package main.java.io.takima.teamupback.groupmember
+package main.java.io.takima.teamupback.groupMember
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

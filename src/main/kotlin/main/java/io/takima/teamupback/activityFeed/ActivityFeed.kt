@@ -1,4 +1,4 @@
-package main.java.io.takima.teamupback.activityfeed
+package main.java.io.takima.teamupback.activityFeed
 
 import jakarta.persistence.*
 

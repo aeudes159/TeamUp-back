@@ -38,5 +38,6 @@ out/
 
 ### Kotlin ###
 .kotlin
-/supabase/.branches/_current_branch
-/supabase/.temp/cli-latest
+
+supabase/.branches
+supabase/.temp

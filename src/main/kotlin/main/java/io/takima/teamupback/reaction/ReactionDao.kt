@@ -1,68 +1,52 @@
 package main.java.io.takima.teamupback.reaction
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * ReactionDao - Extends BaseDao for common pagination methods.
+ * Custom methods for finding reactions by message or user.
+ */
 @Component
-class ReactionDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Reaction> {
-        return entityManager.createQuery(
-            "SELECT r FROM Reaction r ORDER BY r.createdAt DESC",
-            Reaction::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class ReactionDao : BaseDao<Reaction>(Reaction::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(r) FROM Reaction r",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
 
-    fun countByMessageId(messageId: Int): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(r) FROM Reaction r WHERE r.messageId = :messageId",
-            Long::class.javaObjectType
-        )
-            .setParameter("messageId", messageId)
-            .singleResult
-    }
-
+    /**
+     * Find reactions by message ID with pagination
+     */
     fun findByMessageIdWithPagination(messageId: Int, offset: Int, limit: Int): List<Reaction> {
-        return entityManager.createQuery(
-            "SELECT r FROM Reaction r WHERE r.messageId = :messageId ORDER BY r.createdAt DESC",
-            Reaction::class.java
+        return findByFieldWithPagination(
+            fieldName = "messageId",
+            fieldValue = messageId,
+            offset = offset,
+            limit = limit
         )
-            .setParameter("messageId", messageId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count reactions on a message
+     */
+    fun countByMessageId(messageId: Int): Long {
+        return countByField("messageId", messageId)
+    }
+
+    /**
+     * Find reactions by user ID with pagination
+     */
     fun findByUserIdWithPagination(userId: Int, offset: Int, limit: Int): List<Reaction> {
-        return entityManager.createQuery(
-            "SELECT r FROM Reaction r WHERE r.userId = :userId ORDER BY r.createdAt DESC",
-            Reaction::class.java
+        return findByFieldWithPagination(
+            fieldName = "userId",
+            fieldValue = userId,
+            offset = offset,
+            limit = limit
         )
-            .setParameter("userId", userId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count reactions by a user
+     */
     fun countByUserId(userId: Int): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(r) FROM Reaction r WHERE r.userId = :userId",
-            Long::class.javaObjectType
-        )
-            .setParameter("userId", userId)
-            .singleResult
+        return countByField("userId", userId)
     }
 }

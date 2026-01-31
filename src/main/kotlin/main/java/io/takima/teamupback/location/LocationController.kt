@@ -1,5 +1,6 @@
 package main.java.io.takima.teamupback.location
 
+import java.math.BigDecimal
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,9 +14,22 @@ class LocationController(
     @GetMapping
     fun findAll(
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) minPrice: BigDecimal?,
+        @RequestParam(required = false) maxPrice: BigDecimal?,
+        @RequestParam(defaultValue = "NAME") sort: String
     ): ResponseEntity<LocationListResponse> {
-        return ResponseEntity.ok(locationService.findAll(page, size))
+        return ResponseEntity.ok(
+            locationService.findAll(
+                page,
+                size,
+                name,
+                minPrice,
+                maxPrice,
+                sort
+            )
+        )
     }
 
     @GetMapping("/{id}")

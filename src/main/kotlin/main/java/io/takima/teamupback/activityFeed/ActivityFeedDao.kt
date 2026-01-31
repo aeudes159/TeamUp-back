@@ -1,28 +1,13 @@
 package main.java.io.takima.teamupback.activityFeed
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * ActivityFeedDao - Extends BaseDao for common pagination methods.
+ */
 @Component
-class ActivityFeedDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<ActivityFeed> {
-        return entityManager.createQuery(
-            "SELECT af FROM ActivityFeed af ORDER BY af.id",
-            ActivityFeed::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class ActivityFeedDao : BaseDao<ActivityFeed>(ActivityFeed::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(af) FROM ActivityFeed af",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.id"
 }

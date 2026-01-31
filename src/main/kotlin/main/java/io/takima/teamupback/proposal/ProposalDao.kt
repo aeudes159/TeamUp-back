@@ -1,39 +1,33 @@
 package main.java.io.takima.teamupback.proposal
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * ProposalDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding proposals by discussion.
+ */
 @Component
-class ProposalDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Proposal> {
-        return entityManager.createQuery(
-            "SELECT p FROM Proposal p ORDER BY p.createdAt DESC",
-            Proposal::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class ProposalDao : BaseDao<Proposal>(Proposal::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(p) FROM Proposal p",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
 
+    /**
+     * Find proposals by discussion ID with pagination
+     */
     fun findByDiscussionIdWithPagination(discussionId: Int, offset: Int, limit: Int): List<Proposal> {
-        return entityManager.createQuery(
-            "SELECT p FROM Proposal p WHERE p.discussion.id = :discussionId ORDER BY p.createdAt DESC",
-            Proposal::class.java
+        return findWithPagination(
+            whereClause = "e.discussion.id = :discussionId",
+            parameters = mapOf("discussionId" to discussionId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("discussionId", discussionId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count proposals in a discussion
+     */
+    fun countByDiscussionId(discussionId: Int): Long {
+        return countWhere("e.discussion.id = :discussionId", mapOf("discussionId" to discussionId))
     }
 }

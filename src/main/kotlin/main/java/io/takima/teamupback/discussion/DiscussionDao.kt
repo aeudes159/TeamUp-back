@@ -1,39 +1,33 @@
 package main.java.io.takima.teamupback.discussion
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * DiscussionDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding discussions by group.
+ */
 @Component
-class DiscussionDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Discussion> {
-        return entityManager.createQuery(
-            "SELECT d FROM Discussion d ORDER BY d.createdAt DESC",
-            Discussion::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class DiscussionDao : BaseDao<Discussion>(Discussion::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(d) FROM Discussion d",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
 
+    /**
+     * Find discussions by group ID with pagination
+     */
     fun findByGroupIdWithPagination(groupId: Int, offset: Int, limit: Int): List<Discussion> {
-        return entityManager.createQuery(
-            "SELECT d FROM Discussion d WHERE d.group.id = :groupId ORDER BY d.createdAt DESC",
-            Discussion::class.java
+        return findWithPagination(
+            whereClause = "e.group.id = :groupId",
+            parameters = mapOf("groupId" to groupId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("groupId", groupId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count discussions in a group
+     */
+    fun countByGroupId(groupId: Int): Long {
+        return countWhere("e.group.id = :groupId", mapOf("groupId" to groupId))
     }
 }

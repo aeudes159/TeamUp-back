@@ -1,50 +1,53 @@
 package main.java.io.takima.teamupback.groupMember
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * GroupMemberDao - Extends BaseDao for common pagination methods.
+ * Custom methods for finding members by group or user.
+ * Note: Uses composite key (groupId, userId) accessed via e.id.groupId / e.id.userId
+ */
 @Component
-class GroupMemberDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<GroupMember> {
-        return entityManager.createQuery(
-            "SELECT gm FROM GroupMember gm ORDER BY gm.joinedAt DESC",
-            GroupMember::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class GroupMemberDao : BaseDao<GroupMember>(GroupMember::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(gm) FROM GroupMember gm",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.joinedAt DESC"
 
+    /**
+     * Find members by group ID with pagination
+     */
     fun findByGroupId(groupId: Int, offset: Int, limit: Int): List<GroupMember> {
-        return entityManager.createQuery(
-            "SELECT gm FROM GroupMember gm WHERE gm.id.groupId = :groupId ORDER BY gm.joinedAt DESC",
-            GroupMember::class.java
+        return findWithPagination(
+            whereClause = "e.id.groupId = :groupId",
+            parameters = mapOf("groupId" to groupId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("groupId", groupId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count members in a group
+     */
+    fun countByGroupId(groupId: Int): Long {
+        return countWhere("e.id.groupId = :groupId", mapOf("groupId" to groupId))
+    }
+
+    /**
+     * Find group memberships by user ID with pagination
+     */
     fun findByUserId(userId: Int, offset: Int, limit: Int): List<GroupMember> {
-        return entityManager.createQuery(
-            "SELECT gm FROM GroupMember gm WHERE gm.id.userId = :userId ORDER BY gm.joinedAt DESC",
-            GroupMember::class.java
+        return findWithPagination(
+            whereClause = "e.id.userId = :userId",
+            parameters = mapOf("userId" to userId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("userId", userId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count groups a user belongs to
+     */
+    fun countByUserId(userId: Int): Long {
+        return countWhere("e.id.userId = :userId", mapOf("userId" to userId))
     }
 }

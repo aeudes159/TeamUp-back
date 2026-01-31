@@ -1,39 +1,33 @@
 package main.java.io.takima.teamupback.post
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * PostDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding posts by author.
+ */
 @Component
-class PostDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Post> {
-        return entityManager.createQuery(
-            "SELECT p FROM Post p ORDER BY p.postedAt DESC",
-            Post::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class PostDao : BaseDao<Post>(Post::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(p) FROM Post p",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.postedAt DESC"
 
+    /**
+     * Find posts by author ID with pagination
+     */
     fun findByAuthorIdWithPagination(authorId: Int, offset: Int, limit: Int): List<Post> {
-        return entityManager.createQuery(
-            "SELECT p FROM Post p WHERE p.authorId = :authorId ORDER BY p.postedAt DESC",
-            Post::class.java
+        return findByFieldWithPagination(
+            fieldName = "authorId",
+            fieldValue = authorId,
+            offset = offset,
+            limit = limit
         )
-            .setParameter("authorId", authorId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count posts by an author
+     */
+    fun countByAuthorId(authorId: Int): Long {
+        return countByField("authorId", authorId)
     }
 }

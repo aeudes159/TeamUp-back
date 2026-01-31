@@ -16,6 +16,7 @@ class CorsConfig {
         val config = CorsConfiguration()
         config.allowCredentials = true
         config.addAllowedOriginPattern("*")  // Permet tous les origins en local
+        config.allowedOrigins = listOf("https://teamup.jo-pouradier.fr")
         config.addAllowedHeader("*")
         config.addAllowedMethod("*")
         

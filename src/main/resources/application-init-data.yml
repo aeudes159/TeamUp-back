@@ -1,0 +1,12 @@
+# Spring Profile: init-data
+# Activates seed data loading via Flyway repeatable migrations
+#
+# Usage: ./gradlew bootRun --args='--spring.profiles.active=init-data'
+# Or set environment variable: SPRING_PROFILES_ACTIVE=init-data
+
+spring:
+  flyway:
+    # Include both standard migrations and seed data migrations
+    locations:
+      - classpath:migrations
+      - classpath:seed

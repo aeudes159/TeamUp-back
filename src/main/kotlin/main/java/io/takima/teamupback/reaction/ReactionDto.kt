@@ -6,7 +6,8 @@ import java.time.LocalDateTime
 data class ReactionCreateRequest(
     val emoji: String,
     val userId: Int,
-    val messageId: Int
+    val messageId: Int? = null,
+    val commentId: Int? = null
 )
 
 // Response DTOs
@@ -14,7 +15,8 @@ data class ReactionResponse(
     val id: Int?,
     val emoji: String,
     val userId: Int,
-    val messageId: Int,
+    val messageId: Int?,
+    val commentId: Int?,
     val createdAt: LocalDateTime?
 ) {
     companion object {
@@ -24,6 +26,7 @@ data class ReactionResponse(
                 emoji = entity.emoji,
                 userId = entity.userId,
                 messageId = entity.messageId,
+                commentId = entity.commentId,
                 createdAt = entity.createdAt
             )
         }

@@ -65,4 +65,25 @@ class ReactionDao(
             .setParameter("userId", userId)
             .singleResult
     }
+
+    // Comment reactions
+    fun countByCommentId(commentId: Int): Long {
+        return entityManager.createQuery(
+            "SELECT COUNT(r) FROM Reaction r WHERE r.commentId = :commentId",
+            Long::class.javaObjectType
+        )
+            .setParameter("commentId", commentId)
+            .singleResult
+    }
+
+    fun findByCommentIdWithPagination(commentId: Int, offset: Int, limit: Int): List<Reaction> {
+        return entityManager.createQuery(
+            "SELECT r FROM Reaction r WHERE r.commentId = :commentId ORDER BY r.createdAt DESC",
+            Reaction::class.java
+        )
+            .setParameter("commentId", commentId)
+            .setFirstResult(offset)
+            .setMaxResults(limit)
+            .resultList
+    }
 }

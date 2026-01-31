@@ -42,6 +42,15 @@ class ReactionController(
         return ResponseEntity.ok(reactionService.findByMessageId(messageId, page, size))
     }
 
+    @GetMapping("/by-comment/{commentId}")
+    fun findByCommentId(
+        @PathVariable commentId: Int,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "50") size: Int
+    ): ResponseEntity<ReactionListResponse> {
+        return ResponseEntity.ok(reactionService.findByCommentId(commentId, page, size))
+    }
+
     @GetMapping("/by-user/{userId}")
     fun findByUserId(
         @PathVariable userId: Int,

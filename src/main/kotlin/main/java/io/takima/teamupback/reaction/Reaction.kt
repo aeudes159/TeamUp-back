@@ -17,8 +17,11 @@ class Reaction(
     @Column(name = "user_id", nullable = false)
     var userId: Int,
 
-    @Column(name = "message_id", nullable = false)
-    var messageId: Int,
+    @Column(name = "message_id")
+    var messageId: Int? = null,
+
+    @Column(name = "comment_id")
+    var commentId: Int? = null,
 
     @Column(name = "created_at")
     val createdAt: LocalDateTime? = LocalDateTime.now()

@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ReactionRepository : JpaRepository<Reaction, Int> {
     fun findByMessageId(messageId: Int): List<Reaction>
+    fun findByCommentId(commentId: Int): List<Reaction>
     fun findByUserId(userId: Int): List<Reaction>
     fun findByMessageIdAndUserId(messageId: Int, userId: Int): List<Reaction>
     fun findByMessageIdAndUserIdAndEmoji(messageId: Int, userId: Int, emoji: String): Reaction?
+    fun findByCommentIdAndUserIdAndEmoji(commentId: Int, userId: Int, emoji: String): Reaction?
 }

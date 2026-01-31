@@ -1,5 +1,6 @@
 package main.java.io.takima.teamupback.location
 
+import java.math.BigDecimal
 import main.java.io.takima.teamupback.common.exception.ResourceNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,11 +11,27 @@ class LocationService(
     private val locationRepository: LocationRepository,
     private val locationDao: LocationDao
 ) {
+    fun findAll(
+        page: Int,
+        size: Int,
+        name: String?,
+        minPrice: BigDecimal?,
+        maxPrice: BigDecimal?,
+        sort: String
+    ): LocationListResponse {
 
-    fun findAll(page: Int, size: Int): LocationListResponse {
         val offset = page * size
-        val locations = locationDao.findAllWithPagination(offset, size)
-        val total = locationDao.count()
+
+        val locations = locationDao.findAllWithFilters(
+            offset = offset,
+            limit = size,
+            name = name,
+            minPrice = minPrice,
+            maxPrice = maxPrice,
+            sort = sort
+        )
+
+        val total = locationDao.countWithFilters(name, minPrice, maxPrice)
 
         return LocationListResponse(
             data = locations.map { LocationResponse.fromEntity(it) },

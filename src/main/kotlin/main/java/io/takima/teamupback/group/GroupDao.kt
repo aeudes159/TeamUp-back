@@ -1,38 +1,33 @@
 package main.java.io.takima.teamupback.group
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * GroupDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding public groups.
+ */
 @Component
-class GroupDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Group> {
-        return entityManager.createQuery(
-            "SELECT g FROM Group g ORDER BY g.createdAt DESC",
-            Group::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class GroupDao : BaseDao<Group>(Group::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(g) FROM Group g",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
 
+    /**
+     * Find all public groups with pagination
+     */
     fun findPublicGroups(offset: Int, limit: Int): List<Group> {
-        return entityManager.createQuery(
-            "SELECT g FROM Group g WHERE g.isPublic = true ORDER BY g.createdAt DESC",
-            Group::class.java
+        return findByFieldWithPagination(
+            fieldName = "isPublic",
+            fieldValue = true,
+            offset = offset,
+            limit = limit
         )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count public groups
+     */
+    fun countPublicGroups(): Long {
+        return countByField("isPublic", true)
     }
 }

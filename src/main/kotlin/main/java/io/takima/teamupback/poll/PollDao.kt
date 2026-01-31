@@ -1,101 +1,89 @@
 package main.java.io.takima.teamupback.poll
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * PollDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding polls by discussion.
+ */
 @Component
-class PollDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
+class PollDao : BaseDao<Poll>(Poll::class) {
+
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
+
+    /**
+     * Find polls by discussion ID with pagination
+     */
     fun findByDiscussionIdWithPagination(discussionId: Int, offset: Int, limit: Int): List<Poll> {
-        return entityManager.createQuery(
-            "SELECT p FROM Poll p WHERE p.discussion.id = :discussionId ORDER BY p.createdAt DESC",
-            Poll::class.java
+        return findWithPagination(
+            whereClause = "e.discussion.id = :discussionId",
+            parameters = mapOf("discussionId" to discussionId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("discussionId", discussionId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count polls in a discussion
+     */
     fun countByDiscussionId(discussionId: Int): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(p) FROM Poll p WHERE p.discussion.id = :discussionId",
-            Long::class.javaObjectType
-        )
-            .setParameter("discussionId", discussionId)
-            .singleResult
-    }
-
-    fun findAllWithPagination(offset: Int, limit: Int): List<Poll> {
-        return entityManager.createQuery(
-            "SELECT p FROM Poll p ORDER BY p.createdAt DESC",
-            Poll::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
-
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(p) FROM Poll p",
-            Long::class.javaObjectType
-        )
-            .singleResult
+        return countWhere("e.discussion.id = :discussionId", mapOf("discussionId" to discussionId))
     }
 }
 
+/**
+ * PollOptionDao - Extends BaseDao for common pagination methods.
+ */
 @Component
-class PollOptionDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
+class PollOptionDao : BaseDao<PollOption>(PollOption::class) {
+
+    override fun getDefaultOrderBy(): String = "e.createdAt ASC"
+
+    /**
+     * Find poll options by poll ID with pagination
+     */
     fun findByPollIdWithPagination(pollId: Int, offset: Int, limit: Int): List<PollOption> {
-        return entityManager.createQuery(
-            "SELECT po FROM PollOption po WHERE po.poll.id = :pollId ORDER BY po.createdAt ASC",
-            PollOption::class.java
+        return findWithPagination(
+            whereClause = "e.poll.id = :pollId",
+            parameters = mapOf("pollId" to pollId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("pollId", pollId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count poll options for a poll
+     */
     fun countByPollId(pollId: Int): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(po) FROM PollOption po WHERE po.poll.id = :pollId",
-            Long::class.javaObjectType
-        )
-            .setParameter("pollId", pollId)
-            .singleResult
+        return countWhere("e.poll.id = :pollId", mapOf("pollId" to pollId))
     }
 }
 
+/**
+ * PollVoteDao - Extends BaseDao for common pagination methods.
+ */
 @Component
-class PollVoteDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
+class PollVoteDao : BaseDao<PollVote>(PollVote::class) {
+
+    override fun getDefaultOrderBy(): String = "e.createdAt ASC"
+
+    /**
+     * Find votes by poll option ID with pagination
+     */
     fun findByPollOptionIdWithPagination(pollOptionId: Int, offset: Int, limit: Int): List<PollVote> {
-        return entityManager.createQuery(
-            "SELECT pv FROM PollVote pv WHERE pv.pollOption.id = :pollOptionId ORDER BY pv.createdAt ASC",
-            PollVote::class.java
+        return findWithPagination(
+            whereClause = "e.pollOption.id = :pollOptionId",
+            parameters = mapOf("pollOptionId" to pollOptionId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("pollOptionId", pollOptionId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count votes for a poll option
+     */
     fun countByPollOptionId(pollOptionId: Int): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(pv) FROM PollVote pv WHERE pv.pollOption.id = :pollOptionId",
-            Long::class.javaObjectType
-        )
-            .setParameter("pollOptionId", pollOptionId)
-            .singleResult
+        return countWhere("e.pollOption.id = :pollOptionId", mapOf("pollOptionId" to pollOptionId))
     }
 }

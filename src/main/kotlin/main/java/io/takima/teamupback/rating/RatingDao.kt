@@ -1,45 +1,42 @@
 package main.java.io.takima.teamupback.rating
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * RatingDao - Extends BaseDao for common pagination methods.
+ * Custom methods for finding ratings by location and computing averages.
+ */
 @Component
-class RatingDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Rating> {
-        return entityManager.createQuery(
-            "SELECT r FROM Rating r ORDER BY r.createdAt DESC",
-            Rating::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class RatingDao : BaseDao<Rating>(Rating::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(r) FROM Rating r",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.createdAt DESC"
 
+    /**
+     * Find ratings by location ID with pagination
+     */
     fun findByLocationIdWithPagination(locationId: Int, offset: Int, limit: Int): List<Rating> {
-        return entityManager.createQuery(
-            "SELECT r FROM Rating r WHERE r.location.id = :locationId ORDER BY r.createdAt DESC",
-            Rating::class.java
+        return findWithPagination(
+            whereClause = "e.location.id = :locationId",
+            parameters = mapOf("locationId" to locationId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("locationId", locationId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
     }
 
+    /**
+     * Count ratings for a location
+     */
+    fun countByLocationId(locationId: Int): Long {
+        return countWhere("e.location.id = :locationId", mapOf("locationId" to locationId))
+    }
+
+    /**
+     * Get the average rating for a location
+     */
     fun getAverageRatingForLocation(locationId: Int): Double? {
         return entityManager.createQuery(
-            "SELECT AVG(r.ratingValue) FROM Rating r WHERE r.location.id = :locationId",
+            "SELECT AVG(e.ratingValue) FROM Rating e WHERE e.location.id = :locationId",
             Double::class.javaObjectType
         )
             .setParameter("locationId", locationId)

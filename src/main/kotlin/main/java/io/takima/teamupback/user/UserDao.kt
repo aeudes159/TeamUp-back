@@ -1,39 +1,36 @@
 package main.java.io.takima.teamupback.user
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * UserDao - Extends BaseDao for common pagination methods.
+ * Custom searchByName method for user-specific search.
+ */
 @Component
-class UserDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<User> {
-        return entityManager.createQuery(
-            "SELECT u FROM User u ORDER BY u.lastName, u.firstName",
-            User::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class UserDao : BaseDao<User>(User::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(u) FROM User u",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.lastName, e.firstName"
 
+    /**
+     * Search users by first name or last name (case-insensitive)
+     */
     fun searchByName(name: String, offset: Int, limit: Int): List<User> {
-        return entityManager.createQuery(
-            "SELECT u FROM User u WHERE LOWER(u.firstName) LIKE LOWER(:name) OR LOWER(u.lastName) LIKE LOWER(:name) ORDER BY u.lastName, u.firstName",
-            User::class.java
+        return findWithPagination(
+            whereClause = "LOWER(e.firstName) LIKE LOWER(:name) OR LOWER(e.lastName) LIKE LOWER(:name)",
+            parameters = mapOf("name" to "%$name%"),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("name", "%$name%")
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count users matching a search term
+     */
+    fun countByName(name: String): Long {
+        return countWhere(
+            "LOWER(e.firstName) LIKE LOWER(:name) OR LOWER(e.lastName) LIKE LOWER(:name)",
+            mapOf("name" to "%$name%")
+        )
     }
 }

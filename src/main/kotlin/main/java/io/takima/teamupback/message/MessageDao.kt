@@ -1,39 +1,33 @@
 package main.java.io.takima.teamupback.message
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
+import main.java.io.takima.teamupback.common.dao.BaseDao
 import org.springframework.stereotype.Component
 
+/**
+ * MessageDao - Extends BaseDao for common pagination methods.
+ * Custom method for finding messages by discussion.
+ */
 @Component
-class MessageDao(
-    @PersistenceContext
-    private val entityManager: EntityManager
-) {
-    fun findAllWithPagination(offset: Int, limit: Int): List<Message> {
-        return entityManager.createQuery(
-            "SELECT m FROM Message m ORDER BY m.sentAt DESC",
-            Message::class.java
-        )
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
-    }
+class MessageDao : BaseDao<Message>(Message::class) {
 
-    fun count(): Long {
-        return entityManager.createQuery(
-            "SELECT COUNT(m) FROM Message m",
-            Long::class.javaObjectType
-        ).singleResult
-    }
+    override fun getDefaultOrderBy(): String = "e.sentAt DESC"
 
+    /**
+     * Find messages by discussion ID with pagination
+     */
     fun findByDiscussionIdWithPagination(discussionId: Int, offset: Int, limit: Int): List<Message> {
-        return entityManager.createQuery(
-            "SELECT m FROM Message m WHERE m.discussion.id = :discussionId ORDER BY m.sentAt DESC",
-            Message::class.java
+        return findWithPagination(
+            whereClause = "e.discussion.id = :discussionId",
+            parameters = mapOf("discussionId" to discussionId),
+            offset = offset,
+            limit = limit
         )
-            .setParameter("discussionId", discussionId)
-            .setFirstResult(offset)
-            .setMaxResults(limit)
-            .resultList
+    }
+
+    /**
+     * Count messages in a discussion
+     */
+    fun countByDiscussionId(discussionId: Int): Long {
+        return countWhere("e.discussion.id = :discussionId", mapOf("discussionId" to discussionId))
     }
 }

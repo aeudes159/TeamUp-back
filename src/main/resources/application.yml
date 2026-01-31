@@ -6,8 +6,15 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update  # ou validate si DB d�j� cr��e
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  flyway:
+    enabled: true
+    locations: classpath:migrations
+    baseline-on-migrate: true
+    baseline-version: '0'
+    validate-on-migrate: true
+
 server:
-  port: ${PORT:8080}  # Render injecte le PORT automatiquement
+  port: ${PORT:8080}
